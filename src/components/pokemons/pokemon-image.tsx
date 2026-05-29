@@ -36,9 +36,9 @@ export const PokemonImage = component$(
             width: `${size}px`,
           }}
           onLoad$={() => {
-            setTimeout(() => {
-              imageLoaded.value = true;
-            }, 2000);
+            //setTimeout(() => {
+            imageLoaded.value = true;
+            //}, 2000);
           }}
           class={[
             {
