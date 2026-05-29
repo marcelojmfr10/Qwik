@@ -5,7 +5,7 @@ import { PokemonImage } from "~/components/pokemons/pokemon-image";
 export default component$(() => {
   const pokemonId = useSignal(1); // primitivos
   const showBackImage = useSignal(false);
-  const isPokemonVisible = useSignal(false);
+  const isPokemonVisible = useSignal(true);
 
   const nav = useNavigate();
 

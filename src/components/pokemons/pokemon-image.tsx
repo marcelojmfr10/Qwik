@@ -3,7 +3,7 @@ import { component$, useSignal, useTask$ } from "@builder.io/qwik";
 interface Props {
   id: number;
   size?: number;
-  backImage: boolean;
+  backImage?: boolean;
   isVisible?: boolean;
 }
 
@@ -43,7 +43,7 @@ export const PokemonImage = component$(
           class={[
             {
               hidden: !imageLoaded.value,
-              "brightness-0": isVisible,
+              "brightness-0": !isVisible,
             },
             "transition-all",
           ]}
