@@ -4,6 +4,7 @@ import {
   useComputed$,
   useSignal,
   useStore,
+  useVisibleTask$,
 } from "@builder.io/qwik";
 import {
   Link,
@@ -13,6 +14,7 @@ import {
 } from "@builder.io/qwik-city";
 import { PokemonImage } from "~/components/pokemons/pokemon-image";
 import { Modal } from "~/components/shared";
+import { getFunFactAboutPokemon } from "~/helpers/get-chat-gpt-response";
 import { getSmallPokemons } from "~/helpers/get-small-pokemons";
 import type { SmallPokemon } from "~/interfaces";
 
@@ -36,6 +38,8 @@ export default component$(() => {
     name: "",
   });
 
+  const chatGPTPokemonFact = useSignal("");
+
   // modal functions
   const showModal = $((id: string, name: string) => {
     modalPokemon.id = id;
@@ -45,6 +49,17 @@ export default component$(() => {
 
   const closeModal = $(() => {
     modalVisible.value = false;
+  });
+
+  useVisibleTask$(({ track }) => {
+    track(() => modalPokemon.name);
+
+    chatGPTPokemonFact.value = "";
+    if (modalPokemon.name.length > 0) {
+      getFunFactAboutPokemon(modalPokemon.name).then(
+        (resp) => (chatGPTPokemonFact.value = resp),
+      );
+    }
   });
 
   const currentOffset = useComputed$<number>(() => {
@@ -94,7 +109,11 @@ export default component$(() => {
         <div q:slot="title">{modalPokemon.name}</div>
         <div class="flex flex-col justify-center items-center" q:slot="content">
           <PokemonImage id={+modalPokemon.id} />
-          <span>Preguntando a ChatGPT</span>
+          <span>
+            {chatGPTPokemonFact.value === ""
+              ? "Preguntando a ChatGPT"
+              : chatGPTPokemonFact}
+          </span>
         </div>
       </Modal>
     </>

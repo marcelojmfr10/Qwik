@@ -63,3 +63,7 @@ The production build will generate client and server modules by running both cli
 ```shell
 pnpm build # or `pnpm build`
 ```
+
+## Configuración de env
+
+Renombrar el archivo **.env.template** a **.env** y cambiar las variables de entorno
