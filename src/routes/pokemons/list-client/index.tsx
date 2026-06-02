@@ -1,6 +1,7 @@
 import {
   $,
   component$,
+  useContext,
   useOnDocument,
   useStore,
   useStyles$,
@@ -10,6 +11,7 @@ import {
 } from "@builder.io/qwik";
 import { Link, type DocumentHead } from "@builder.io/qwik-city";
 import { PokemonImage } from "~/components/pokemons/pokemon-image";
+import { PokemonListContext } from "~/context";
 import { getSmallPokemons } from "~/helpers/get-small-pokemons";
 import type { SmallPokemon } from "~/interfaces";
 
@@ -24,11 +26,13 @@ interface PokemonPageState {
 export default component$(() => {
   // useStylesScoped$(styles); // solo este archivo
 
-  const pokemonState = useStore<PokemonPageState>({
-    currentPage: 0,
-    isLoading: false,
-    pokemons: [],
-  });
+  // const pokemonState = useStore<PokemonPageState>({
+  //   currentPage: 0,
+  //   isLoading: false,
+  //   pokemons: [],
+  // });
+
+  const pokemonState = useContext(PokemonListContext);
 
   // useVisibleTask$(async ({ track }) => {
   //   track(() => pokemonState.currentPage);
@@ -40,7 +44,16 @@ export default component$(() => {
     track(() => pokemonState.currentPage);
     // pokemonState.isLoading = true;
 
-    const pokemons = await getSmallPokemons(pokemonState.currentPage * 10, 30);
+    const pokemons = await getSmallPokemons(pokemonState.currentPage * 30, 30);
+
+    if (
+      Object.values(pokemons).some((pokemon) =>
+        pokemonState.pokemons.some((p) => p.id === pokemon.id),
+      )
+    ) {
+      return;
+    }
+
     pokemonState.pokemons = [...pokemonState.pokemons, ...pokemons];
     pokemonState.isLoading = false;
   });
