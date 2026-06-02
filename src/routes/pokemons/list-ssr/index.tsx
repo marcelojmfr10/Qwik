@@ -1,4 +1,10 @@
-import { component$, useComputed$ } from "@builder.io/qwik";
+import {
+  $,
+  component$,
+  useComputed$,
+  useSignal,
+  useStore,
+} from "@builder.io/qwik";
 import {
   Link,
   routeLoader$,
@@ -6,6 +12,7 @@ import {
   type DocumentHead,
 } from "@builder.io/qwik-city";
 import { PokemonImage } from "~/components/pokemons/pokemon-image";
+import { Modal } from "~/components/shared";
 import { getSmallPokemons } from "~/helpers/get-small-pokemons";
 import type { SmallPokemon } from "~/interfaces";
 
@@ -22,8 +29,23 @@ export const usePokemonList = routeLoader$<SmallPokemon[]>(
 
 export default component$(() => {
   const pokemons = usePokemonList();
-
   const location = useLocation();
+  const modalVisible = useSignal(false);
+  const modalPokemon = useStore({
+    id: "",
+    name: "",
+  });
+
+  // modal functions
+  const showModal = $((id: string, name: string) => {
+    modalPokemon.id = id;
+    modalPokemon.name = name;
+    modalVisible.value = true;
+  });
+
+  const closeModal = $(() => {
+    modalVisible.value = false;
+  });
 
   const currentOffset = useComputed$<number>(() => {
     // const offsetString = location.url.searchParams.get("offset");
@@ -56,12 +78,25 @@ export default component$(() => {
 
       <div class="grid grid-cols-6 mt-5">
         {pokemons.value.map(({ name, id }) => (
-          <div key={name} class="m-5 flex flex-col justify-center items-center">
+          <div
+            key={name}
+            // onClick$={() => (modalVisible.value = true)}
+            onClick$={() => showModal(id, name)}
+            class="m-5 flex flex-col justify-center items-center"
+          >
             <PokemonImage id={+id} />
             <span class="capitalize">{name}</span>
           </div>
         ))}
       </div>
+
+      <Modal showModal={modalVisible.value} persistent closeFn={closeModal}>
+        <div q:slot="title">{modalPokemon.name}</div>
+        <div class="flex flex-col justify-center items-center" q:slot="content">
+          <PokemonImage id={+modalPokemon.id} />
+          <span>Preguntando a ChatGPT</span>
+        </div>
+      </Modal>
     </>
   );
 });
